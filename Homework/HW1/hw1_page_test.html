@@ -35,15 +35,18 @@ function doAllTests()
      { Name: "Thor", Home: "Asgard", ActorFirstName: "Chris" },
      { Name: "Hulk", Home: "Earth", ActorFirstName: "Mark" },
      { Name: "Hawkeye", Home: "Earth", ActorFirstName: "Jeremy" },
-     { Name: "Nick Fury", Home: "Earth", ActorFirstName: "Samuel" }
+     { Name: "Nick Fury", Home: "Earth", ActorFirstName: "Samuel" },
     ];
     
-    var chessPieces = ["Pawn", "Rook", "Knight", "Bishop", "King", "Queen"];
+    var chessPieces = ["Pawn", "Rook", "Knight", "Bishop", "King", "Queen",];
     
     // All basic tests must work to get 2 out of 3 points
     // Each test case is an array:
     // ["Basic" or "Challenge", array_of_objects, comparison_function]
     var allTestCases = [
+        ["Gene", [{add: true, num: 1}, {add: true, num: 33}, {add: true, num: 2}, {add: true, num: 9}, {add: true, num: 5}, {add: false, num: 9}, {add: true, num: 9}, {add: true, num: 9}],null],
+        ["Gene", [{add: false, num: 1}, {add: true, num: 42}],null],
+
         ["Basic", [{add: true, num: 1}], null],
         ["Basic", [{add: true, num: 66}, {add: true, num: 22}, {add: true, num: 33}, {add: true, num: 99}, {add: true, num: 88}, {add: true, num: 11}, {add: true, num: 44}, {add: true, num: 77}, {add: true, num: 55}], null],
         ["Basic", [{add: true, num: 12345}, {add: false, num: 12345}], null],
@@ -65,6 +68,8 @@ function doAllTests()
         ["Challenge", chessPieces, chessPieceCompare]
     ];
     var allAnswers = [
+        "1,2,5,9,9,33",
+        "42",
         "1",
         "11,22,33,44,55,66,77,88,99",
         "",

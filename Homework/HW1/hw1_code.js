@@ -48,6 +48,7 @@ SortedLL489.prototype.add = function(valueToAdd)
 
         while (curr !== null) {
             if (this.m_compare(curr.value, node.value) >= 0) {
+                // found in middle
                 prev.next = node;
                 node.previous = prev;
                 node.next = curr;
@@ -58,6 +59,7 @@ SortedLL489.prototype.add = function(valueToAdd)
             curr = curr.next;
         }
 
+        // at the end
         prev.next = node;
         node.previous = prev;
     }
@@ -85,12 +87,13 @@ SortedLL489.prototype.remove = function(valueToRemove)
         curr = curr.next;
     }
 
-    if (curr === null) { // valueToRemove was not found in ll
+    // valueToRemove was not found in ll
+    if (curr === null) { 
         return;
     }
 
     curr.previous.next = curr.next;
-    if (curr.next !== null) {
+    if (curr.next !== null) {   // if not the last node
         curr.next.previous = curr.prev;
     }
 }
