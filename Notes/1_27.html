@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<script>
+		var g_root = null
+
+		function addValue()
+		{
+			addValueTree();
+			updateDisplay();
+		}
+
+		function addValueTree()
+		{
+			var tb = document.getElementById("tbNumInput");
+
+			// TODO in class
+			//alert("Want to add : " + tb.value);
+			
+			if (g_root == null)
+			{
+				g_root = { left: null, right: null, value: tb.value };
+				return true;
+			}
+			
+			var node = g_root;
+			
+			while (true)
+			{
+				if (node.value > tb.value)
+				{
+					if (node.left == null)
+					{
+						node.left = { left: null, right: null, value: tb.value };
+						return true;
+					}
+					node = node.left;
+				}
+				else if (node.value < tb.value)
+				{
+					if (node.right  == null)
+					{
+						node.right = { left: null, right: null, value: tb.value };
+						return true;
+					}
+					node = node.right;
+				}
+				else { return false; }
+			}
+		}
+
+		function updateDisplay(node)
+		{
+			var out = document.getElementById("divOutput");
+			if (g_root == null)
+			{
+				out.textContent = "(tree is empty)";
+				return;
+			}
+
+			// TODO in class
+
+			if (node === undefined) 
+			{ 
+				out.textContent = "";
+				node = g_root;
+			}
+			if (node == null) { return; }
+			updateDisplay(node.left);
+			out.textContent += node.value + " ";
+			updateDisplay(node.right);
+		}
+	</script>
+
+	<body onload="updateDisplay()" style="width:100%; height:100%">
+		<input type="text" id="tbNumInput" />
+		<br>
+		<input type="button" onclick="addValue()" value="Add" />
+		<br>
+		Tree contents (sorted):
+		<div id="divOutput" style="border: 1px solid black">&nbsp;</div>
+	</body>
+</html>
