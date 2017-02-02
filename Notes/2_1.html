@@ -1,0 +1,39 @@
+<html>
+	<script>
+		// BASIC INHERITANCE
+
+		// functions are hoisted up to execute first
+		// every other lines of code will execute in sequence
+
+		Animal.prototype.Name = "unkown animal";
+
+		Animal.prototype.toString = function ()
+		{
+			return this.Name;
+		};
+		
+		var a = new Animal();
+		a.Name = "Changed it";
+		/*a.toString = function () // this is a's "own property" -> in the object itself, otherwise down the prototype chain
+		{
+			return this.Name;
+		};*/
+		alert(a.toString());
+		var a2 = new Animal();
+		alert(a2.toString());
+
+		function Animal()
+		{
+			//this.isAnimal = true;
+			//this.isUnknownType = true;
+		}
+
+		function Cat()
+		{
+			Animal.call(this);
+			this.isCat = true;
+			this.isUnknownType = false;
+		}
+
+	</script>
+</html>

@@ -49,11 +49,11 @@ BST.prototype.add = function (valueToAdd)
 			{
 				node.left = { left: null, right: null, value: valueToAdd, previous: null, next: null };
 				this.m_last = node.left;
-				node.left.previous = !node.left.left ? parent : node.left.left;
+				/*node.left.previous = !node.left.left ? parent : node.left.left;
 				node.left.next = !node.left.right ? parent.right : node.left.right;
 				node.previous = node.left;
 				node.next = node.right;
-				parent.next = node.left;
+				parent.next = node.left;*/
 				return true;
 			}
 			parent = node;
@@ -65,8 +65,8 @@ BST.prototype.add = function (valueToAdd)
 			{
 				node.right = { left: null, right: null, value: valueToAdd, previous: null, next: null };
 				this.m_last = node.right;
-				node.right.previous = !node.right.left ? node : node.right.left;
-				node.right.next = node.right.right;
+				/*node.right.previous = !node.right.left ? node : node.right.left;
+				node.right.next = node.right.right;*/
 				return true;
 			}
 			parent = node;
