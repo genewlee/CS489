@@ -57,7 +57,7 @@ BST.prototype.add = function (valueToAdd)
 {
 	if (this.m_root == null)
 	{
-		this.m_root = { left: null, right: null, value: valueToAdd, previous: null, next: null };
+		this.m_root = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: null};
 		this.m_first = this.m_root;
 		return true;
 	}
@@ -87,7 +87,7 @@ BST.prototype.add = function (valueToAdd)
 		{
 			if (node.left == null)
 			{
-				node.left = { left: null, right: null, value: valueToAdd, previous: null, next: null };
+				node.left = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node };
 				addLL(node.left);
 				return true;
 			}
@@ -97,7 +97,7 @@ BST.prototype.add = function (valueToAdd)
 		{
 			if (node.right == null)
 			{
-				node.right = { left: null, right: null, value: valueToAdd, previous: null, next: null };
+				node.right = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node };
 				addLL(node.right);
 				return true;
 			}
@@ -140,10 +140,7 @@ BST.prototype.getLevel = function (valueToSearch)
 	
 	while (node)
 	{
-		if (node.value == valueToSearch)
-		{
-			return level;
-		}
+		if (node.value == valueToSearch) { return level; }
 
 		if (this.m_compare(node.value, valueToSearch) > 0) // less than move to the left
 		{
@@ -155,7 +152,7 @@ BST.prototype.getLevel = function (valueToSearch)
 		}
 		level++;
 	}
-	return level;
+	return (node === undefined || node === null) ? -1 : level;
 }
 
 // Function that is callable with no parameters that returns the maximum value in the tree. 
@@ -254,30 +251,33 @@ BST.prototype.remove = function (valueToRemove)
 		}
 		if (node.value == valueRemove)
 		{
-			//removeLL(node);
-
 			if ((node.left == undefined || node.left === null) && (node.right == undefined || node.right === null))
 			{
 				return null;
 			}
 			if (node.left == undefined || node.left === null)
 			{
+				node.right.parent = node.parent;
 				return node.right;
 			}
 			if (node.right == undefined || node.right === null)
 			{
+				node.left.parent = node.parent;
 				return node.left;
 			}
 
 			// has 2 children
 			var maxOfLeftSubtree = getMaxHelper(node.left); // get the max of left subtree
 			
+			var parent = node.parent;
 			var right = node.right;				// remeber the right subtree
 			
 			maxOfLeftSubtree.left = removeHelper(node.left, maxOfLeftSubtree.value);	// refactor left subtree
 			
 			node = maxOfLeftSubtree;			// replace the node to remove with the max of left subtree
 			node.right = right;					// replace the found max node's right with the original right subtree
+			node.parent = parent;
+			node.right.parent = node;
 			
 			return node;
 		}

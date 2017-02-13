@@ -4,6 +4,35 @@
 function BST(compareFunction)
 {
     this.m_root = null;
+    this.m_first = null;
+    this.m_last = null;
+
+    this.forEach = function (callback, useInsertionOrder) {
+    	if (callback !== undefined) 
+    	{
+    		if (useInsertionOrder !== undefined && useInsertionOrder) // true insertion order
+    		{ 
+    			var node = this.m_first;
+    			while (node != null)
+    			{
+    				callback(node.value, this.m_root);
+    				node = node.next;
+    			}
+    		}
+    		else
+    		{
+    			var thisBSTClass = this; // need to do this since inOrder() doesn't know this
+    			var inOrder = function (callback2, node) {
+					if (node === undefined || node === null) { return; }
+					inOrder(node.left);
+					callback2(node.value, thisBSTClass.m_root)
+					inOrder(node.right);
+				};
+
+				inOrder(callback, this.m_root);
+    		}
+    	}
+    }
 
     if (compareFunction === undefined || compareFunction == null)
     {
@@ -28,8 +57,26 @@ BST.prototype.add = function (valueToAdd)
 {
 	if (this.m_root == null)
 	{
-		this.m_root = { left: null, right: null, value: valueToAdd };
+		this.m_root = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: null};
+		this.m_first = this.m_root;
 		return true;
+	}
+
+	var thisBSTClass = this; // need to do this since addLL() doesn't know this
+
+	var addLL = function (node) {
+		var prev = thisBSTClass.m_first;
+        var curr = thisBSTClass.m_first.next;
+
+        while (curr !== null) {
+            prev = curr;
+            curr = curr.next;
+        }
+
+        // at the end
+        prev.next = node;
+        node.previous = prev;
+        thisBSTClass.m_last = node;
 	}
 	
 	var node = this.m_root;
@@ -40,7 +87,8 @@ BST.prototype.add = function (valueToAdd)
 		{
 			if (node.left == null)
 			{
-				node.left = { left: null, right: null, value: valueToAdd };
+				node.left = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node };
+				addLL(node.left);
 				return true;
 			}
 			node = node.left;
@@ -49,7 +97,8 @@ BST.prototype.add = function (valueToAdd)
 		{
 			if (node.right == null)
 			{
-				node.right = { left: null, right: null, value: valueToAdd };
+				node.right = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node };
+				addLL(node.right);
 				return true;
 			}
 			node = node.right;
@@ -62,42 +111,19 @@ BST.prototype.add = function (valueToAdd)
 // Returns 0 if the tree is empty.
 BST.prototype.count = function ()
 {
-	if (this.m_root === undefined || this.m_root === null) { return 0; }
+	var count = 0;;
 
-	var count;
+	if (this.m_root === undefined || this.m_root === null) { return count; }
 
-	var node = this.m_root;
-	var prevNode = null;
-
-	while (node !== undefined && node !== null)
+	var inOrderCount = function (node)
 	{
-		if (node.left === undefined || node.left === null)
-		{
-			count++;
-			node = node.right;
-		}
-		else
-		{
-			prevNode = node.left;
-			while ((prevNode.right !== undefined && prevNode.right !== null) && prevNode.right != node) 
-			{
-				prevNode = prevNode.right;
-			}
+		if (node === undefined || node === null) { return; }
+		inOrderCount(node.left);
+		count++;
+		inOrderCount(node.right);
+	};
 
-			if (prevNode.right === undefined || prevNode.right === null)
-			{
-				prevNode.right = node;
-				node = node.left;
-			}
-
-			else
-			{
-				prevNode.right = null;
-				count++;
-				node = node.right;
-			}
-		}
-	}
+	inOrderCount(this.m_root); 
 	return count;
 }
 
@@ -114,10 +140,7 @@ BST.prototype.getLevel = function (valueToSearch)
 	
 	while (node)
 	{
-		if (node.value == valueToSearch)
-		{
-			return level;
-		}
+		if (node.value == valueToSearch) { return level; }
 
 		if (this.m_compare(node.value, valueToSearch) > 0) // less than move to the left
 		{
@@ -129,7 +152,7 @@ BST.prototype.getLevel = function (valueToSearch)
 		}
 		level++;
 	}
-	return level;
+	return (node === undefined || node === null) ? -1 : level;
 }
 
 // Function that is callable with no parameters that returns the maximum value in the tree. 
@@ -218,7 +241,7 @@ BST.prototype.remove = function (valueToRemove)
 		{
 			return getMaxHelper(node.right);
 		}
-		return node.value;
+		return node;
 	};
 
 	var removeHelper = function (node, valueRemove) {
@@ -234,17 +257,28 @@ BST.prototype.remove = function (valueToRemove)
 			}
 			if (node.left == undefined || node.left === null)
 			{
+				node.right.parent = node.parent;
 				return node.right;
 			}
 			if (node.right == undefined || node.right === null)
 			{
+				node.left.parent = node.parent;
 				return node.left;
 			}
 
 			// has 2 children
-			var temp = getMaxHelper(node.left);
-			node.value = temp;
-			node.left = removeHelper(node.left, temp);
+			var maxOfLeftSubtree = getMaxHelper(node.left); // get the max of left subtree
+			
+			var parent = node.parent;
+			var right = node.right;				// remeber the right subtree
+			
+			maxOfLeftSubtree.left = removeHelper(node.left, maxOfLeftSubtree.value);	// refactor left subtree
+			
+			node = maxOfLeftSubtree;			// replace the node to remove with the max of left subtree
+			node.right = right;					// replace the found max node's right with the original right subtree
+			node.parent = parent;
+			node.right.parent = node;
+			
 			return node;
 		}
 		else if (thisBSTClass.m_compare(node.value, valueRemove) > 0) // less than move to the left)
@@ -258,7 +292,38 @@ BST.prototype.remove = function (valueToRemove)
 			return node;
 		}
 	};
+
+	var removeLL = function () {
+	    // m_root is the value to be removed
+	    if (thisBSTClass.m_first.value == valueToRemove) {
+	        thisBSTClass.m_first = thisBSTClass.m_first.next;
+	    }
+	    else
+		{
+		    var node = thisBSTClass.m_first.next;
+		    while (node !== null && node.value != valueToRemove) {
+		        node = node.next;
+		    }
+
+		    // valueToRemove was not found in ll
+		    if (node === null) { 
+		        return;
+		    }
+
+		    node.previous.next = node.next;
+		    if (node.next !== null) {   // if not the last node
+		        node.next.previous = node.previous;
+		    }
+		}
+
+	    if (thisBSTClass.m_first !== null) // set the previous of m_first to null
+		{
+			thisBSTClass.m_first.previous = null;
+		}
+	};
+
 	this.m_root = removeHelper(this.m_root, valueToRemove);
+	removeLL();
 }
 
 // Function that has a single, optional parameter for a delimiter string. 
@@ -267,50 +332,6 @@ BST.prototype.remove = function (valueToRemove)
 // The contents are in sorted order and separated by the delimiter string. 
 // he delimiter is space by default but can be replaced with any arbitrary string. 
 // Important: The delimiter is NOT included after the last element.
-// BST.prototype.toString = function (delimiterString) 
-// {
-// 	var delimiter = " ";
-// 	if (delimiterString !== undefined && delimiterString !== null) { delimiter = delimiterString; }
-
-// 	var BSTstr = "";
-
-// 	if (this.m_root === undefined || this.m_root === null) { return BSTstr; }
-
-// 	var node = this.m_root;
-// 	var prevNode = null;
-
-// 	while (node !== undefined && node !== null)
-// 	{
-// 		if (node.left === undefined || node.left === null)
-// 		{
-// 			BSTstr += (node.right === undefined || node.right === null) ? node.value : node.value + delimiter;
-// 			node = node.right;
-// 		}
-// 		else
-// 		{
-// 			prevNode = node.left;
-// 			while ((prevNode.right !== undefined && prevNode.right !== null) && prevNode.right != node) 
-// 			{
-// 				prevNode = prevNode.right;
-// 			}
-
-// 			if (prevNode.right === undefined || prevNode.right === null)
-// 			{
-// 				prevNode.right = node;
-// 				node = node.left;
-// 			}
-
-// 			else
-// 			{
-// 				prevNode.right = null;
-// 				BSTstr += (node.right === undefined || node.right === null) ? node.value : node.value + delimiter;
-// 				node = node.right;
-// 			}
-// 		}
-// 	}
-// 	return BSTstr;
-// }
-
 BST.prototype.toString = function (delimiterString) 
 {
 	var delimiter = " ";
@@ -330,4 +351,28 @@ BST.prototype.toString = function (delimiterString)
 
 	inOrder(this.m_root); 
 	return BSTstr.substring(0, BSTstr.lastIndexOf(delimiter));
+}
+
+// Adds multiple values from an array to the BST. Returns the number of values 
+// that were added successfully.
+BST.prototype.addMultiple = function(arrOfValues)
+{
+	var count = 0;
+	for (var i = 0; i < arrOfValues.length; i++) 
+	{
+		if (this.add(arrOfValues[i]) === true) { count++; } 
+	}
+	return count; 
+}
+
+// member function that takes no parameters and clears out all items in the set
+BST.prototype.clear = function ()
+{
+
+}
+
+// member function that can be called with no parameters and returns the number of levels in the tree.
+BST.prototype.countLevels()
+{
+
 }
