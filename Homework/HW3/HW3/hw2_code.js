@@ -231,6 +231,7 @@ BST.prototype.remove = function (valueToRemove)
 	if (this.m_root === undefined || this.m_root === null) { return false; }
 
 	var thisBSTClass = this; // need to do this since removeHelper() doesn't know this
+	var found = true;
 
 	var getMaxHelper = function(node) {
 		if (node === undefined || node === null)
@@ -247,6 +248,7 @@ BST.prototype.remove = function (valueToRemove)
 	var removeHelper = function (node, valueRemove) {
 		if (node === undefined || node === null)
 		{
+			found = false;
 			return null;
 		}
 		if (node.value == valueRemove)
@@ -324,6 +326,7 @@ BST.prototype.remove = function (valueToRemove)
 
 	this.m_root = removeHelper(this.m_root, valueToRemove);
 	removeLL();
+	return found;
 }
 
 // Function that has a single, optional parameter for a delimiter string. 
@@ -368,11 +371,25 @@ BST.prototype.addMultiple = function(arrOfValues)
 // member function that takes no parameters and clears out all items in the set
 BST.prototype.clear = function ()
 {
-
+	this.m_root = this.m_first = null;
 }
 
-// member function that can be called with no parameters and returns the number of levels in the tree.
-BST.prototype.countLevels()
+// // member function that can be called with no parameters and returns the number of levels in the tree.
+BST.prototype.countLevels = function ()
 {
+	var countLevelHelper = function(node) {
+		if (node !== null) {
+			var leftH = countLevelHelper(node.left);
+			var rightH = countLevelHelper(node.right);
 
+			if (leftH > rightH) {
+				return leftH + 1;
+			}
+			else {
+				return rightH + 1;
+			}
+		}
+		return 0;
+	}
+	return countLevelHelper(this.m_root);
 }

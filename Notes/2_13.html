@@ -1,0 +1,51 @@
+<!--
+
+delete // deletes a property of an object
+
+// can use to not be able to configure/delete a property
+// sort of making it a private member variable 
+Obect.defineProperty() 
+
+
+for (var propName in obj) { console.log(propName); } // goes through ENUMERABLE properties in the object
+// therefore need to specify the property as enumerable -> default is false
+
+// to make an array of all the objects property names
+var arr = new Array();
+for (var propName in obj) { arr.push(propName); }
+
+// for-in loops in JS goes through the objects properties not the values like a foreach
+// in ES6 -> for-of goes through the "values" like a foreach
+
+// either use 'writable' and 'value' or 'get' and 'set'
+// these are kind of synonyms
+-->
+
+<html>
+	<script>
+
+		function PointXY(x, y)
+		{
+			//this.x = x;
+			//this.y = y;
+
+			var myX = x; // to make a true private member variable
+
+			//Object.defineProperty(this, "x", {enumerable: true, configurable: false, value: x});
+			Object.defineProperty(this, "y", {enumerable: true, configurable: false, value: y});
+
+			var xGet = function() { return myX; };
+			Object.defineProperty(this, "X", {enumerable: true, configurable: false, get: xGet});
+
+			this.myMemberFunc = function () {
+				myX = 100;
+			};
+		}
+
+	</script>
+
+	<body>
+		<a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"> MDN - Object.defineProperty</a>
+	</body>
+
+</html>
