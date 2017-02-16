@@ -16,14 +16,71 @@ Set489.prototype = Object.create(BST.prototype);
 
 Set489.prototype.add = function (valueToAdd) 
 {
+	// if (this.m_root == null)
+	// {
+	// 	this.m_root = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: null, color: "black" };
+	// 	this.m_first = this.m_root;
+	// 	return true;
+	// }
+
+	// var thisSet489Class = this; // need to do this since addLL() doesn't know this
+
+	// var addLL = function (node) {
+	// 	var prev = thisSet489Class.m_first;
+ //        var curr = thisSet489Class.m_first.next;
+
+ //        while (curr !== null) {
+ //            prev = curr;
+ //            curr = curr.next;
+ //        }
+
+ //        // at the end
+ //        prev.next = node;
+ //        node.previous = prev;
+ //        thisSet489Class.m_last = node;
+	// }
+	
+	// var node = this.m_root;
+	
+	// while (true)
+	// {
+	// 	if (this.m_compare(node.value, valueToAdd) > 0)
+	// 	{
+	// 		if (node.left.value == undefined)
+	// 		{
+	// 			node.left = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node, color: "red" };
+				
+	// 			// add black null leaves
+	// 			node.left.left = { left: null, right: null, value: undefined, previous: null, next: null, parent: node.left, color: "black" };
+	// 			node.left.right = { left: null, right: null, value: undefined, previous: null, next: null, parent: node.left, color: "black" };
+
+	// 			addLL(node.left);
+	// 			this.balance(node.left);
+	// 			return true;
+	// 		}
+	// 		node = node.left;
+	// 	}
+	// 	else if (this.m_compare(node.value, valueToAdd) == -1)
+	// 	{
+	// 		if (node.right.value == undefined)
+	// 		{
+	// 			node.right = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node, color: "red" };
+	// 			addLL(node.right);
+
+	// 			// add black null leaves
+	// 			node.right.left = { left: null, right: null, value: undefined, previous: null, next: null, parent: node.right, color: "black" };
+	// 			node.right.right = { left: null, right: null, value: undefined, previous: null, next: null, parent: node.right, color: "black" };
+
+	// 			this.balance(node.right);
+	// 			return true;
+	// 		}
+	// 		node = node.right;
+	// 	}
+	// 	else { return false; }
+	// }
+
 	var node = BST.prototype.addNode.call(this, valueToAdd);
-	
-	if (node == false) {return false; }
-	
-	node.color = "red";
 	this.balance(node);
-	
-	return true;
 }
 
 Set489.prototype.grandparent = function (N)
@@ -249,8 +306,7 @@ Set489.prototype.remove = function(valueToRemove)
 
 	if (node.left !== null && node.right !== null)
 	{
-		this.m_root = removeHelper(this.m_root, valueToRemove);
-		BST.prototype.removeLL.call(this, valueToRemove);
+		this.m_root = removeHelper(node, valueToRemove);
 		return true;
 	}
 	else if (node.color == "red") //((node.left === null && node.right !== null) || (node.right === null && node.left !== null))
@@ -258,49 +314,48 @@ Set489.prototype.remove = function(valueToRemove)
 		return BST.prototype.remove.call(this, valueToRemove);
 	}
 
-	this.prepareForRemove(node);
+	//this.prepareForRemove(node);
 	return BST.prototype.remove.call(this, node.value);
 	
 }
 
 Set489.prototype.prepareForRemove = function (node)
 {
-	// case 1. node is the new root
+	// case 1
 	if (node.parent === null) { return; }
 
 	var sibling = this.sibling(node);
 	var parent = node.parent;
 
-	// case 2. sibling is red
+	// case 2
 	if (sibling.color == "red") // implies parent is black
 	{
-		sibling.color = "black";
-		parent.color = "red";
-		if (node == parent.left) 
+		if (node == parent.right) 
 		{
 			this.rotateLeft(parent);
-			// var temp = parent;		// need to switch P and N since we did rotation
-			// parent = node;
-			// node = temp;
+			var temp = parent;		// need to switch P and N since we did rotation
+			parent = node;
+			node = temp;
 		}
-		else if (node == parent.right)
+		else if (node == parent.left)
 		{
 			this.rotateRight(parent);
-			// var temp = parent;
-			// parent = node;
-			// node = temp;
+			var temp = parent;
+			parent = node;
+			node = temp;
 		}
+		sibling.color = "black";
 	}
 
-	// case 3. P, S, and S's children are black. In this case, we simply repaint S red
+	// case 3
 	if (parent.color == "black" && sibling.color == "black" && 
 		((sibling.left === null || sibling.left.color == "black") && (sibling.right === null || sibling.right.color == "black")))
 	{
 		sibling.color = "red";
-		this.prepareForRemove(parent);
+		return this.prepareForRemove(parent);
 	}
 
-	// case 4. S and S's children are black, but P is red. In this case, we simply exchange the colors of S and P
+	// case 4
 	if (parent.color == "red" && sibling.color == "black" && 
 		((sibling.left === null || sibling.left.color == "black") && (sibling.right === null || sibling.right.color == "black")))
 	{
@@ -309,9 +364,9 @@ Set489.prototype.prepareForRemove = function (node)
 		return;
 	}
 
-	// case 5. S is black, S's left child is red, S's right child is black, and N is the left child of its parent. 
-	// In this case we rotate right at S, so that S's left child becomes S's parent and N's new sibling. 
-	// We then exchange the colors of S and its new parent
+	// case 5
+	// if (sibling.color == "black" && sibling.left.color == "red" && (sibling.right === null || sibling.right.color == "black") &&
+	// 	node == parent.left)
 	if (sibling.color == "black")
 	{
 		if (node == parent.left && (sibling.right === null || sibling.right.color == "black") 
@@ -321,30 +376,84 @@ Set489.prototype.prepareForRemove = function (node)
 			sibling.left.color = "red";
 			this.rotateRight(sibling);
 		}
-		else if (node == parent.right && (sibling.left === null || sibling.left.color == "black") 
-			&& sibling.right.color == "red")
+		else if (node == parent.right && (sibling.right === null || sibling.right.color == "black") 
+			&& sibling.left.color == "red")
 		{
 			sibling.color = "black";
-			if (sibling.right !== null) { sibling.right.color = "black"; }
+			sibling.right.color = "black";
 			this.rotateLeft(sibling);
 		}
 	}
 
-	// case 6. S is black, S's right child is red, and N is the left child of its parent P. 
-	// In this case we rotate left at P, so that S becomes the parent of P and S's right child. 
-	// We then exchange the colors of P and S, and make S's right child black
-	sibling.color = parent.color;
-	parent.color = "black";
 
-	if (node == parent.left)
-	{
-		sibling.right.color = "black";
-		this.rotateLeft(parent);
-	}
-	else {
-		sibling.left.color = "black";
-		this.rotateRight(parent);
-	}
+
+
+
+	// while (node !== this.m_root && node.color === 'black') 
+	// {
+	//     var w;
+	//     if (node === node.parent.left) 
+	//     {
+	// 		w = node.parent.right;
+	// 		if (w.color === 'red') 
+	// 		{
+	// 			w.color = 'black';
+	// 			node.parent.color = 'red';
+	// 			this.rotateLeft(node.parent);
+	// 		}
+	// 		if (w.left.color === 'black' && w.right.color === 'black') 
+	// 		{
+	// 			w.color = 'red';
+	// 			node = node.parent;
+	// 		} 
+	// 		else 
+	// 		{
+	// 			if (w.right.color === 'black') 
+	// 			{
+	// 				w.left.color = 'black';
+	// 				w.color = 'red';
+	// 				this.rotateRight(w);
+	// 				w = node.parent.right;
+	// 			}
+	// 			w.color = node.parent.color;
+	// 			node.parent.color = 'black';
+	// 			w.right.color = 'black';
+	// 			this.rotateLeft(node.parent);
+	// 			node = this.m_root;
+	// 		}
+	//     } 
+	//     else 
+	//     {
+	// 		w = node.parent.left;
+	// 		if (w.color === 'red') 
+	// 		{
+	// 			w.color = 'black';
+	// 			node.parent.color = 'red';
+	// 			this.rotateRight(node.parent);
+	// 		}
+	// 		if (w.right.color === 'black' && w.left.color === 'black') 
+	// 		{
+	// 			w.color = 'red';
+	// 			node = node.parent;
+	// 		} 
+	// 		else 
+	// 		{
+	// 			if (w.left.color === 'black') 
+	// 			{
+	// 				w.right.color = 'black';
+	// 				w.color = 'red';
+	// 				this.rotateLeft(w);
+	// 				w = node.parent.left;
+	// 			}
+	// 			w.color = node.parent.color;
+	// 			node.parent.color = 'black';
+	// 			w.left.color = 'black';
+	// 			this.rotateRight(node.parent);
+	// 			node = this.m_root;
+	// 		}
+	//     }
+	// }
+ //  	node.color = 'black';
 }
 
 

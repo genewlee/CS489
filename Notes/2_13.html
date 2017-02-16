@@ -1,4 +1,5 @@
 <!--
+	2/13/17 & 2/15/17
 
 delete // deletes a property of an object
 
@@ -26,6 +27,7 @@ for (var propName in obj) { arr.push(propName); }
 
 		function PointXY(x, y)
 		{
+			var theDIV = document.getElementById("contentDIV");
 			//this.x = x;
 			//this.y = y;
 
@@ -34,18 +36,57 @@ for (var propName in obj) { arr.push(propName); }
 			//Object.defineProperty(this, "x", {enumerable: true, configurable: false, value: x});
 			Object.defineProperty(this, "y", {enumerable: true, configurable: false, value: y});
 
-			var xGet = function() { return myX; };
-			Object.defineProperty(this, "X", {enumerable: true, configurable: false, get: xGet});
+			// var xGet = function() { return myX; };
+			// Object.defineProperty(this, "X", {enumerable: true, configurable: false, get: xGet});
 
-			this.myMemberFunc = function () {
-				myX = 100;
+			// this.myMemberFunc = function () {
+			// 	myX = 100;
+			// };
+
+			// function closures
+			//   - a function + a referencing environment
+			this.setX = function (xValue) {
+				if (xValue >= 0) { myX = xValue; }
 			};
+
+			this.getX = function (Xvalue) {
+				return myX;
+			};
+		}
+
+		// THIS DOES NOT WORK CAUSE IT DOESNT KNOW myX
+		PointXY.prototype.customGet = function () 
+		{
+			return myX; 
+		}
+
+		function makeGetValue(value)
+		{
+			return function () { return value; }
+		}
+
+		var funcs = new Array();
+		for (var i = 0; i < 3; i++)
+		{
+			//var iCopy = 1;			 
+			//var funcs[i] = function() { return iCopy; }. // this will display 2 2 2 since its the last set value for iCopy
+			var funcs[i] = function() { return i; }
+		}
+		for (var i = 0; i < 3; i++) // this will display 0 1 2
+		{
+			alert(funcs[i]());
+		}
+		for (var j = 0; j < 3; j++) // this will display 3 3 3  because returns a refernece to the last i from the function 
+		{
+			alert(funcs[j]());
 		}
 
 	</script>
 
 	<body>
 		<a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"> MDN - Object.defineProperty</a>
+
+		<div id="contentDIV"> (results will appear here) </div>
 	</body>
 
 </html>

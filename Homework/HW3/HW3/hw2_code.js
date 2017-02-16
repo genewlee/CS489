@@ -21,15 +21,26 @@ function BST(compareFunction)
     		}
     		else
     		{
-    			var thisBSTClass = this; // need to do this since inOrder() doesn't know this
-    			var inOrder = function (callback2, node) {
-					if (node === undefined || node === null) { return; }
-					inOrder(node.left);
-					callback2(node.value, thisBSTClass.m_root)
-					inOrder(node.right);
-				};
+				if (this.m_root === null) { return; }
+				var stack = [];
+				var node = this.m_root;
 
-				inOrder(callback, this.m_root);
+				while (node !== null) {
+					stack.push(node);
+					node = node.left;
+				}
+
+				while (stack.length > 0 || node !== null) {
+					if (node !== null) {
+						stack.push(node);
+						node = node.left;
+					}
+					else {
+						node = stack.pop();
+						callback(node.value, this.m_root);
+						node = node.right;
+					}
+				}
     		}
     	}
     }
@@ -107,6 +118,61 @@ BST.prototype.add = function (valueToAdd)
 	}
 }
 
+// same functionality as add(), but this method returns the node that was added
+BST.prototype.addNode = function (valueToAdd) 
+{
+	if (this.m_root == null)
+	{
+		this.m_root = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: null};
+		this.m_first = this.m_root;
+		return this.m_root;
+	}
+
+	var thisBSTClass = this; // need to do this since addLL() doesn't know this
+
+	var addLL = function (node) {
+		var prev = thisBSTClass.m_first;
+        var curr = thisBSTClass.m_first.next;
+
+        while (curr !== null) {
+            prev = curr;
+            curr = curr.next;
+        }
+
+        // at the end
+        prev.next = node;
+        node.previous = prev;
+        thisBSTClass.m_last = node;
+	}
+	
+	var node = this.m_root;
+	
+	while (true)
+	{
+		if (this.m_compare(node.value, valueToAdd) > 0)
+		{
+			if (node.left == null)
+			{
+				node.left = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node };
+				addLL(node.left);
+				return node.left;
+			}
+			node = node.left;
+		}
+		else if (this.m_compare(node.value, valueToAdd) == -1)
+		{
+			if (node.right == null)
+			{
+				node.right = { left: null, right: null, value: valueToAdd, previous: null, next: null, parent: node };
+				addLL(node.right);
+				return node.right;
+			}
+			node = node.right;
+		}
+		else { return false; }
+	}
+}
+
 // Function that is callable with no parameters that returns the number of values in the tree. 
 // Returns 0 if the tree is empty.
 BST.prototype.count = function ()
@@ -152,7 +218,7 @@ BST.prototype.getLevel = function (valueToSearch)
 		}
 		level++;
 	}
-	return (node === undefined || node === null) ? -1 : level;
+	return (node === undefined || node === null) ? -1 : level-1;
 }
 
 // Function that is callable with no parameters that returns the maximum value in the tree. 
@@ -222,6 +288,36 @@ BST.prototype.has = function (hasValue)
 	return false;
 }
 
+BST.prototype.removeLL = function (valueToRemove)
+{
+	// m_root is the value to be removed
+    if (this.m_first.value == valueToRemove) {
+        this.m_first = this.m_first.next;
+    }
+    else
+	{
+	    var node = this.m_first.next;
+	    while (node !== null && node.value != valueToRemove) {
+	        node = node.next;
+	    }
+
+	    // valueToRemove was not found in ll
+	    if (node === null) { 
+	        return;
+	    }
+
+	    node.previous.next = node.next;
+	    if (node.next !== null) {   // if not the last node
+	        node.next.previous = node.previous;
+	    }
+	}
+
+    if (this.m_first !== null) // set the previous of m_first to null
+	{
+		this.m_first.previous = null;
+	}
+}
+
 // Function that takes a single value to remove from the tree. 
 // Use the removal rules discussed in class (which are the standard removal rules). 
 // Opt for the max value in the left subtree when you need to do a swap for a removal of a node with 2 children. 
@@ -278,6 +374,9 @@ BST.prototype.remove = function (valueToRemove)
 			
 			node = maxOfLeftSubtree;			// replace the node to remove with the max of left subtree
 			node.right = right;					// replace the found max node's right with the original right subtree
+			
+			if (node.left !== null) { node.left.parent = node; }  // set the left childs parent to this new one if left is not null
+			
 			node.parent = parent;
 			node.right.parent = node;
 			
@@ -295,37 +394,8 @@ BST.prototype.remove = function (valueToRemove)
 		}
 	};
 
-	var removeLL = function () {
-	    // m_root is the value to be removed
-	    if (thisBSTClass.m_first.value == valueToRemove) {
-	        thisBSTClass.m_first = thisBSTClass.m_first.next;
-	    }
-	    else
-		{
-		    var node = thisBSTClass.m_first.next;
-		    while (node !== null && node.value != valueToRemove) {
-		        node = node.next;
-		    }
-
-		    // valueToRemove was not found in ll
-		    if (node === null) { 
-		        return;
-		    }
-
-		    node.previous.next = node.next;
-		    if (node.next !== null) {   // if not the last node
-		        node.next.previous = node.previous;
-		    }
-		}
-
-	    if (thisBSTClass.m_first !== null) // set the previous of m_first to null
-		{
-			thisBSTClass.m_first.previous = null;
-		}
-	};
-
 	this.m_root = removeHelper(this.m_root, valueToRemove);
-	removeLL();
+	this.removeLL(valueToRemove);
 	return found;
 }
 
