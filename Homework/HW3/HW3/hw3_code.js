@@ -161,9 +161,9 @@ Set489.prototype.rotateRight = function (N)
 	N.parent = left;
 }
 
-Set489.prototype.search = function(value)
+Set489.prototype.search = function(value, node)
 {
-	var node = this.m_root;
+	if (node === undefined) { node = this.m_root; }
 
 	while (true)
 	{
@@ -180,8 +180,11 @@ Set489.prototype.search = function(value)
 	}
 }
 
-Set489.prototype.remove = function(valueToRemove)
+Set489.prototype.remove = function(valueToRemove, node)
 {
+	var thisBSTClass = this; // need to do this since removeHelper() doesn't know this
+	var found = true;
+
 	var getMaxHelper = function(node) {
 		if (node === undefined || node === null)
 		{
@@ -194,73 +197,28 @@ Set489.prototype.remove = function(valueToRemove)
 		return node;
 	};
 
-	var thisSet489Class = this; // need to do this since removeHelper() doesn't know this
-	var removeHelper = function (node, valueRemove) {
-		if (node === undefined || node === null)
-		{
-			return null;
-		}
-		if (node.value == valueRemove)
-		{
-			if ((node.left == undefined || node.left === null) && (node.right == undefined || node.right === null))
-			{
-				return null;
-			}
-			if (node.left == undefined || node.left === null)
-			{
-				node.right.parent = node.parent;
-				return node.right;
-			}
-			if (node.right == undefined || node.right === null)
-			{
-				node.left.parent = node.parent;
-				return node.left;
-			}
-
-			// has 2 children
-			var maxOfLeftSubtree = getMaxHelper(node.left); // get the max of left subtree
-			
-			var parent = node.parent;
-			var right = node.right;				// remeber the right subtree
-			
-			maxOfLeftSubtree.left = removeHelper(node.left, maxOfLeftSubtree.value);	// refactor left subtree
-			
-			node = maxOfLeftSubtree;			// replace the node to remove with the max of left subtree
-			node.right = right;					// replace the found max node's right with the original right subtree
-			node.parent = parent;
-			node.right.parent = node;
-			
-			return node;
-		}
-		else if (thisSet489Class.m_compare(node.value, valueRemove) > 0) // less than move to the left)
-		{
-			node.left = removeHelper(node.left, valueRemove);
-			return node;
-		}
-		else 
-		{
-			node.right = removeHelper(node.right, valueRemove);
-			return node;
-		}
-	};
-
-	var node = this.search(valueToRemove);
+	var node = this.search(valueToRemove, node);
 	if (node === undefined) { return false; }
 
+	var max;
 	if (node.left !== null && node.right !== null)
 	{
-		this.m_root = removeHelper(this.m_root, valueToRemove);
-		BST.prototype.removeLL.call(this, valueToRemove);
-		return true;
+		if (node.value == 66) {
+			var foo = 0;
+		}
+		var max = getMaxHelper(node.left);
+		node = max;
+		this.remove(max.value, node.left);
 	}
-	else if (node.color == "red") //((node.left === null && node.right !== null) || (node.right === null && node.left !== null))
+	if (node.color == "red") //((node.left === null && node.right !== null) || (node.right === null && node.left !== null))
 	{
 		return BST.prototype.remove.call(this, valueToRemove);
 	}
-
-	this.prepareForRemove(node);
-	return BST.prototype.remove.call(this, node.value);
-	
+	else if (node.color == "black") // / node is black
+	{
+		this.prepareForRemove(node);
+		return BST.prototype.remove.call(this, valueToRemove);
+	}
 }
 
 Set489.prototype.prepareForRemove = function (node)
@@ -279,16 +237,16 @@ Set489.prototype.prepareForRemove = function (node)
 		if (node == parent.left) 
 		{
 			this.rotateLeft(parent);
-			// var temp = parent;		// need to switch P and N since we did rotation
-			// parent = node;
-			// node = temp;
+			var temp = parent;		// need to switch P and N since we did rotation
+			parent = node;
+			node = temp;
 		}
 		else if (node == parent.right)
 		{
 			this.rotateRight(parent);
-			// var temp = parent;
-			// parent = node;
-			// node = temp;
+			var temp = parent;
+			parent = node;
+			node = temp;
 		}
 	}
 
@@ -338,11 +296,11 @@ Set489.prototype.prepareForRemove = function (node)
 
 	if (node == parent.left)
 	{
-		sibling.right.color = "black";
+		if (sibling.right !== null) { sibling.right.color = "black"; }
 		this.rotateLeft(parent);
 	}
 	else {
-		sibling.left.color = "black";
+		if (sibling.left !== null) { sibling.left.color = "black"; }
 		this.rotateRight(parent);
 	}
 }

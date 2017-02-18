@@ -218,7 +218,7 @@ BST.prototype.getLevel = function (valueToSearch)
 		}
 		level++;
 	}
-	return (node === undefined || node === null) ? -1 : level-1;
+	return (node === undefined || node === null) ? -1 : level;
 }
 
 // Function that is callable with no parameters that returns the maximum value in the tree. 
@@ -286,36 +286,6 @@ BST.prototype.has = function (hasValue)
 		}
 	}
 	return false;
-}
-
-BST.prototype.removeLL = function (valueToRemove)
-{
-	// m_root is the value to be removed
-    if (this.m_first.value == valueToRemove) {
-        this.m_first = this.m_first.next;
-    }
-    else
-	{
-	    var node = this.m_first.next;
-	    while (node !== null && node.value != valueToRemove) {
-	        node = node.next;
-	    }
-
-	    // valueToRemove was not found in ll
-	    if (node === null) { 
-	        return;
-	    }
-
-	    node.previous.next = node.next;
-	    if (node.next !== null) {   // if not the last node
-	        node.next.previous = node.previous;
-	    }
-	}
-
-    if (this.m_first !== null) // set the previous of m_first to null
-	{
-		this.m_first.previous = null;
-	}
 }
 
 // Function that takes a single value to remove from the tree. 
@@ -394,10 +364,39 @@ BST.prototype.remove = function (valueToRemove)
 		}
 	};
 
-	this.m_root = removeHelper(this.m_root, valueToRemove);
-	this.removeLL(valueToRemove);
-	return found;
-}
+	var removeLL = function (valueToRemove)
+	{
+		// m_root is the value to be removed
+	    if (thisBSTClass.m_first.value == valueToRemove) {
+	        thisBSTClass.m_first = thisBSTClass.m_first.next;
+	    }
+	    else
+		{
+		    var node = thisBSTClass.m_first.next;
+		    while (node !== null && node.value != valueToRemove) {
+		        node = node.next;
+		    }
+
+		    // valueToRemove was not found in ll
+		    if (node === null) { 
+		        return;
+		    }
+
+		    node.previous.next = node.next;
+		    if (node.next !== null) {   // if not the last node
+		        node.next.previous = node.previous;
+		    }
+		}
+
+	    if (thisBSTClass.m_first !== null) // set the previous of m_first to null
+		{
+			thisBSTClass.m_first.previous = null;
+		}
+	}
+		this.m_root = removeHelper(this.m_root, valueToRemove);
+		removeLL(valueToRemove);
+		return found;
+	}
 
 // Function that has a single, optional parameter for a delimiter string. 
 // If null or undefined, this delimiter defaults to a single space.
