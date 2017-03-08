@@ -4,6 +4,8 @@
 // Don't forget to include the .js file for the base class along with
 // this one when submitting to Blackboard!
 
+// Set489 is a Red-Black Tree
+
 document.writeln("<script type='text/javascript' src='hw2_code.js'></script>");
 
 function Set489(compareFunction)
@@ -12,8 +14,11 @@ function Set489(compareFunction)
     BST.call(this, compareFunction);
 }
 
+// Set prototype to its own object
 Set489.prototype = Object.create(BST.prototype);
 
+// Set489 add function
+// Call base BST add function
 Set489.prototype.add = function (valueToAdd) 
 {
 	var node = BST.prototype.addNode.call(this, valueToAdd);
@@ -26,12 +31,14 @@ Set489.prototype.add = function (valueToAdd)
 	return true;
 }
 
+// Gets grandparent of a given node or null if does not exist
 Set489.prototype.grandparent = function (N)
 {
 	if ((N !== null) && (N.parent !== null)) { return N.parent.parent; }
 	return null;
 }
 
+// Gets uncle of given node or null if does not exist
 Set489.prototype.uncle = function(N)
 {
 	var G = N.parent.parent;
@@ -40,6 +47,7 @@ Set489.prototype.uncle = function(N)
 	else { return G.left; }
 }
 
+// Gets sibling of node or null if does not exist
 Set489.prototype.sibling = function (N)
 {
 	if (N === null || N.parent === null) { return null; }
@@ -47,6 +55,7 @@ Set489.prototype.sibling = function (N)
 	else { return N.parent.left; }
 }
 
+// Balance the tree with Red-Black Tree properties
 Set489.prototype.balance = function(N)
 {
 	// case 1. node is root -> paint node black, return true
@@ -103,6 +112,7 @@ Set489.prototype.balance = function(N)
 	return true;
 }
 
+// Rotate the subtree to the left of node
 Set489.prototype.rotateLeft = function (N)
 {
 	var right = N.right;
@@ -132,6 +142,7 @@ Set489.prototype.rotateLeft = function (N)
 	N.parent = right;
 }
 
+// Rotate the subtree to the right of node
 Set489.prototype.rotateRight = function (N)
 {
 	var left = N.left;
@@ -161,6 +172,8 @@ Set489.prototype.rotateRight = function (N)
 	N.parent = left;
 }
 
+// Search for the node with given value
+// If node argument is given, start from this as the "root"
 Set489.prototype.search = function(value, node)
 {
 	if (node === undefined) { node = this.m_root; }
@@ -180,11 +193,11 @@ Set489.prototype.search = function(value, node)
 	}
 }
 
+// Remove
+// If node is given as argument, use this as the "root" to start at
+// Three cases
 Set489.prototype.remove = function(valueToRemove, node)
 {
-	var thisBSTClass = this; // need to do this since removeHelper() doesn't know this
-	var found = true;
-
 	var getMaxHelper = function(node) {
 		if (node === undefined || node === null)
 		{
@@ -203,14 +216,11 @@ Set489.prototype.remove = function(valueToRemove, node)
 	var max;
 	if (node.left !== null && node.right !== null)
 	{
-		if (node.value == 66) {
-			var foo = 0;
-		}
 		var max = getMaxHelper(node.left);
 		node = max;
 		this.remove(max.value, node.left);
 	}
-	if (node.color == "red") //((node.left === null && node.right !== null) || (node.right === null && node.left !== null))
+	if (node.color == "red") // node is red and we know that node has 1 or 0 nodes from here on
 	{
 		return BST.prototype.remove.call(this, valueToRemove);
 	}
@@ -221,6 +231,8 @@ Set489.prototype.remove = function(valueToRemove, node)
 	}
 }
 
+// Prepare for remove of a node in Red-Black tree (Set489)
+// 6 cases
 Set489.prototype.prepareForRemove = function (node)
 {
 	// case 1. node is the new root
