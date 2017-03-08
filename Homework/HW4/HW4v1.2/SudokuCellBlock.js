@@ -49,17 +49,26 @@ SudokuCellBlock.prototype.trySolve = function()
 		obj.changed = true;
 	}
 
-	// for (var i = 0; i < needsSolvingCells.length; i++) {
-	// 	var possibiliesFori = needsSolvingCells[i].getPossibilities();
-	// 	for (var j = 1; j < needsSolvingCells.length; j++) {
-	// 		var possibiliesForj = needsSolvingCells[j].getPossibilities();
-	// 		if (!possibiliesFori.every(function(element) {
-	// 			possibiliesForj.includes(element);
-	// 		})) {
-	// 			var blah = 2;
-	// 		}
-	// 	}
-	// }
+	// The following considers where there are 2 unknowns shared between 2 cells, and then a third cell that
+    // has one of those 2 possiblities and a 2nd different possibility. In this case it should be
+    // solvable.
+    // In this case 2 cells have it narrowed down to 2 and 4. A third cell has it narrowed down to 2,4,
+    // and 5. This 3rd cell is for sure 5, given that the 2 and 4 must be in the other 2 cells. This
+    // means that the attempt to solve should leave us with 2 unsolved cells instead of 3.
+    // [ [6, 3, 9, [2,4], 7, [2,4,5], 1, 8, [2,4]], 2]
+	if (needsSolvingCells.length == 3) {
+		for (var i = 0; i < needsSolvingCells.length; i++) {
+			if (needsSolvingCells[i].getPossibilities().length == 3) {
+				var cellWithThreePossibles = needsSolvingCells[i];		// this is the cell that has [2,4,5]
+				var possibilities = cellWithThreePossibles.getPossibilities();
+				for (var j = 0; j < possibilities.length; j++) {
+					if (possibilities[j] != needsSolvingCells[j].getPossibilities()[j]) { // check with cells that have the [2,4]'s
+						cellWithThreePossibles.finalizedValue = possibilities[j];		  // found the "odd-one-out" (i.e. 4) -> set as the finalized value
+					}
+				}
+			}
+		}
+	}
 
 	// check if this block is fully solved
 	var checkIsFinalized = function (cell) {

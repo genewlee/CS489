@@ -5,13 +5,13 @@
 // Makes a deep copy of the passed array.
 function SudokuCellCollection(arrOfCells)
 {
-	// TODO: MAKE IMMUTABLE
 	this.m_coll = [];
 	for (var i = 0; i < arrOfCells.length; i++) {
 		var newCell = new SudokuCell();
 		newCell.possibleValues = arrOfCells[i].getPossibilities();
 		this.m_coll[i] = newCell;
 	}
+	Object.freeze(this.m_coll); // makes collection of cell immutable
 
 	// Read-only numerical property that returns the number of cells in the collection.
 	Object.defineProperty(this, "length", {
