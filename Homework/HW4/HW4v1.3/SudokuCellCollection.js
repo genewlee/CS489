@@ -11,7 +11,7 @@ function SudokuCellCollection(arrOfCells)
 		newCell.possibleValues = arrOfCells[i].getPossibilities();
 		this.m_coll[i] = newCell;
 	}
-	Object.freeze(this.m_coll); // makes collection of cell immutable
+	Object.freeze(this.m_coll); // makes collection of cells immutable
 
 	// Read-only numerical property that returns the number of cells in the collection.
 	Object.defineProperty(this, "length", {
@@ -122,11 +122,7 @@ SudokuCellCollection.prototype.removeCells = function(otherCellCollection)
 	}
 
 	var coll = [];
-	// for (var cell of this.m_coll) {
-	// 	if (!otherCellCollection.contains(cell)) {
-	// 		coll.push(cell);
-	// 	}
-	// }
+
 	for (var cell of otherCellCollection.m_coll) {
 		coll = this.removeCell(cell);
 	}
