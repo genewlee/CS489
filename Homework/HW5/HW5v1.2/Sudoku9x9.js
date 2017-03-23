@@ -114,11 +114,11 @@ Sudoku9x9.prototype.solve = function()
 		}
 	}
 
-	return this.solveSudoku(0, 0);
+	return this.solveBackTrack(0, 0);
 }
 
 // Backtracking Algorithm
-Sudoku9x9.prototype.solveSudoku = function(row, col) 
+Sudoku9x9.prototype.solveBackTrack = function(row, col) 
 {
     var cell = this.findNotFinalizedLocation(row, col);
     var row = cell[0];
@@ -135,7 +135,7 @@ Sudoku9x9.prototype.solveSudoku = function(row, col)
         	//var poss = this.cells81[row][col].getPossibilities();
             this.cells81[row][col].possibleValues = [num]; // tentative 
         
-            if (this.solveSudoku(row, col).solved == true) {                
+            if (this.solveBackTrack(row, col).solved == true) {                
                 return { solved:true };
             }
 
