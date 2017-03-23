@@ -36,13 +36,11 @@ function Sudoku9x9(arrOf81Values)
 	for (var i = 0; i < arrOf81Values.length; ) {
 		var row = [];
 		for (var j = 0; j < 9; j++) {
+			var cell = new SudokuCell(9);
 			if (arrOf81Values[i] > 0 && arrOf81Values[i] < 10) {
-				row.push(arrOf81Values[i]);
+				cell.possibleValues = [arrOf81Values[i]];
 			}
-			else {
-				var cell = new SudokuCell(9);
-				row.push(cell);
-			}
+			row.push(cell);
 			i++;
 		}
 		this.cells81.push(row);
@@ -96,6 +94,7 @@ Sudoku9x9.prototype.toArray = function()
 	return arr;
 }
 
-Sudoku9x9.prototype.solve = function() {
+Sudoku9x9.prototype.solve = function() 
+{
 	return true;
 }

@@ -5,12 +5,14 @@
 // Makes a deep copy of the passed array.
 function SudokuCellCollection(arrOfCells)
 {
-	this.m_coll = [];
-	for (var i = 0; i < arrOfCells.length; i++) {
-		var newCell = new SudokuCell(9);
-		newCell.possibleValues = arrOfCells[i].getPossibilities();
-		this.m_coll[i] = newCell;
-	}
+	// this.m_coll = [];
+	// for (var i = 0; i < arrOfCells.length; i++) {
+	// 	var newCell = new SudokuCell(9);
+	// 	newCell.possibleValues = arrOfCells[i].getPossibilities();
+	// 	this.m_coll[i] = newCell;
+	// }
+	
+	this.m_coll = arrOfCells;
 	Object.freeze(this.m_coll); // makes collection of cells immutable
 
 	// Read-only numerical property that returns the number of cells in the collection.
@@ -26,7 +28,13 @@ function SudokuCellCollection(arrOfCells)
 // this collection, false if it is not.
 SudokuCellCollection.prototype.containsCell = function(cell)
 {
-	this.m_coll.includes(cell);
+	// for (var c of this.m_coll) {
+	// 	if (c.toString() == cell.toString()) {
+	// 		return true;
+	// 	}
+	// }
+	// return false;
+	return this.m_coll.includes(cell);
 }
 
 // Loops through all cells in this collection and returns true if any one of them contains
