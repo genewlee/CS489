@@ -303,7 +303,7 @@ SudokuCellCollection.prototype.removeCell = function(cell)
 		}
 	}
 
-	return coll;
+	return new SudokuCellCollection(coll);
 }
 
 // Builds and returns the collection of cells that are only in this collection and not in

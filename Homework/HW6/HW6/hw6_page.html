@@ -1,0 +1,188 @@
+<!-- If you use additional .js files, make sure to reference them in this file and -->
+<!-- include them in your submission (zip all files together). -->
+<html>
+    
+<script>
+    
+// Helpful links:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
+    
+var g_animating = false;
+var g_colors = ["red", "green", "blue", "yellow", "cyan", "magenta", "orange", "white"];
+var g_objs = new Array();
+function init()
+{
+    // Setup event listeners
+    var canvas = document.getElementById("drawHere");
+    canvas.addEventListener("click", canvasClick);
+
+	// You may add any necessary initialization code here
+	var context = canvas.getContext("2d");
+	context.fillStyle = "lightgray";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Do initial rendering
+    render();
+}
+
+function btnStartStopClick()
+{
+    // Toggle animation on/off
+    // When stopping the animation, all objects freeze in their current position
+    // When resuming the animation, all objects move from their current position (i.e.
+    // they don't all of a sudden jump halfway across the canvas, they move from their
+    // frozen location).
+    g_animating = !g_animating;
+    if (g_animating) { render(); }
+}
+
+function canvasClick(event)
+{
+    // Click without shift key == create new dynamic object
+	// Click with shift key == create new static object
+
+	var canvas = document.getElementById("drawHere");
+	var context = canvas.getContext('2d');
+
+	var mouseX = parseInt(event.clientX - canvas.offsetLeft);
+	var mouseY = parseInt(event.clientY - canvas.offsetTop);
+
+	var radius;
+	var g_obj;
+
+	// If the shift key is held, then a static object is created at the click location
+	if (event.shiftKey == true) { 
+		radius = getRandom(20,40); // random radius in the range [20,40]
+		g_obj = new G_obj(radius, mouseX, mouseY, true);
+	} 
+	else {
+		radius = getRandom(10, 20); // random radius in the range [10,20]
+		speed = getRandom(-5, 5); // random velocity in the range [-5,5]
+		g_obj = new G_obj(radius, mouseX, mouseY, false);
+	}
+
+	g_objs.push(g_obj); // add to g_objs array
+	g_obj.displayOnCanvas(context); // display this circle obj on the canvas
+}
+                            
+function render()
+{
+	var canvas = document.getElementById("drawHere");
+	var context = canvas.getContext('2d');
+
+	// clear the canvas to simulate animation
+	context.clearRect(0,0, canvas.width ,canvas.height);
+	context.fillStyle = "lightgray";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Render each of the objs
+    for (var obj of g_objs) {
+    	obj.updateAndMove(context);
+    	obj.displayOnCanvas(context);
+    }
+
+    // Set timeout to render next frame
+    if (g_animating)
+        window.setTimeout(function() { render(); }, 20);
+}
+
+// object
+function G_obj (radius, mouseX, mouseY, static) 
+{
+	this.isStatic = static;
+	this.radius = radius;
+	this.xPos = mouseX;
+	this.yPos = mouseY;
+	this.color = g_colors[Math.floor(Math.random() * g_colors.length)];	
+
+	if (this.isStatic) {
+		this.speed = [0, 0];
+	}
+	else {
+		this.speed = [getRandom(-5, 5), getRandom(-5, 5)]
+	}
+}
+
+// displays the obj on canvas
+G_obj.prototype.displayOnCanvas = function (context) 
+{
+	context.beginPath();
+	context.arc(this.xPos, this.yPos, this.radius, 0, 2 * Math.PI, false);
+	context.closePath();
+	context.fillStyle = this.color;
+	context.fill();
+	context.lineWidth = 1;
+	context.strokeStyle = '#000000';
+	context.stroke();
+	
+
+	if (this.isStatic == true) { // if static, add a text 'S'
+		context.beginPath();
+		context.font="15px Times";
+        context.fillStyle = "black";
+        context.textBaseline = "middle"; 
+        context.textAlign = "center";
+        context.fillText("S", this.xPos, this.yPos);
+        context.closePath()
+	}
+}
+
+// checks for collisions and updates new direction
+G_obj.prototype.updateAndMove = function (context)
+{
+	var canvas = document.getElementById("drawHere");
+	var hitWall = false;
+
+    if (this.xPos - this.radius < 0 || this.xPos + this.radius > canvas.width) { // Check left and right of canvas
+        this.speed[0] = -this.speed[0];
+        hitWall = true;
+    }
+    if (this.yPos - this.radius < 0 + this.radius || this.yPos + this.radius > canvas.height) { // Check top and bottom of canvas
+        this.speed[1] = -this.speed[1];
+        hitWall = true;
+    }
+
+    if (hitWall == false && !this.isStatic) { // check if static obj is hit
+        for (var obj of g_objs) {
+        	if (obj.isStatic) {
+	            var dx = this.xPos - obj.xPos;
+				var dy = this.yPos - obj.yPos;
+				var distance = Math.sqrt(dx * dx + dy * dy);
+
+				if (distance < this.radius + obj.radius) { // hit a static obj
+	                var magnitude = Math.sqrt(this.speed[0] * this.speed[0] + this.speed[1] * this.speed[1]); // hypotenuse — the magnitude
+	                var vector = [this.yPos - obj.yPos, this.xPos - obj.xPos]; 
+	                var directionAngle = Math.atan2(vector[0], vector[1]); // theta = tan–1(y/x)
+	                var newSpeed = [0,0];
+	                newSpeed[0] = Math.ceil(magnitude * Math.cos(directionAngle)) == 0 ? getRandom(-5,5) : Math.ceil(magnitude * Math.cos(directionAngle)); // v * cos theta
+	                newSpeed[1] = Math.ceil(magnitude * Math.sin(directionAngle)) == 0 ? getRandom(-5,5) : Math.ceil(magnitude * Math.sin(directionAngle)); // v * sin theta
+	                this.speed = newSpeed;
+	                break;
+	            }
+	        }
+        }
+    }
+
+    this.xPos += this.speed[0];
+    this.yPos += this.speed[1];
+}    
+
+// Returns random number between the min and the max
+// Retries if the random number is a 0
+function getRandom (min, max)
+{
+	var random = Math.floor((Math.random() * (max - min + 1)) + min);
+	if (random == 0) { return getRandom(min, max); }
+	return random;
+}
+
+</script>
+<body onload="init()">
+    <h3>HW6 - Canvas Animation v1.0</h3>
+    <canvas id="drawHere" width="800" height="600"></canvas>
+    <br>
+    <input type="button" onclick="btnStartStopClick()" value="Start/Stop Animation"/>
+    <br>
+    Click to add a dynamic object, hold shift and click to a static object
+<html>
