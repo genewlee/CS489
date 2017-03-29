@@ -151,12 +151,12 @@ G_obj.prototype.updateAndMove = function (context)
 				var distance = Math.sqrt(dx * dx + dy * dy);
 
 				if (distance < this.radius + obj.radius) { // hit a static obj
-	                var magnitude = Math.sqrt(this.speed[0] * this.speed[0] + this.speed[1] * this.speed[1]); // hypotenuse — the magnitude
+	                var magnitude = Math.sqrt(this.speed[0] * this.speed[0] + this.speed[1] * this.speed[1]); // hypotenuse — the magnitude, v
 	                var vector = [this.yPos - obj.yPos, this.xPos - obj.xPos]; 
 	                var directionAngle = Math.atan2(vector[0], vector[1]); // theta = tan–1(y/x)
 	                var newSpeed = [0,0];
-	                newSpeed[0] = Math.ceil(magnitude * Math.cos(directionAngle)) == 0 ? getRandom(-5,5) : Math.ceil(magnitude * Math.cos(directionAngle)); // v * cos theta
-	                newSpeed[1] = Math.ceil(magnitude * Math.sin(directionAngle)) == 0 ? getRandom(-5,5) : Math.ceil(magnitude * Math.sin(directionAngle)); // v * sin theta
+	                newSpeed[0] = magnitude * Math.cos(directionAngle); // v * cos theta
+	              	newSpeed[1] = magnitude * Math.sin(directionAngle); // v * sin theta
 	                this.speed = newSpeed;
 	                break;
 	            }
