@@ -1,0 +1,58 @@
+<html>
+<script>
+function BasicObject(x, y, z)
+{
+	if (y === undefined) {
+		Object.assign(this, x);
+		// this.x = x.x;
+		// this.y = x.y;
+		// this.z = x.z;
+	}
+	else {
+		Object.defineProperty(this, "x", {value: x});
+		//this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+}
+
+BasicObject.prototype.logInfo = function()
+{
+	console.log("x (" + typeof(this.x) + "): " + this.x);
+	console.log("y (" + typeof(this.y) + "): " + this.y);
+	console.log("z (" + typeof(this.z) + "): " + this.z);
+}
+
+BasicObject.prototype.toJSON = function()
+{
+	return { x: this.x, y: this.y, "type": "BasicObject" };
+}
+
+</script>
+</html>
+
+<!-- 
+
+var obj1 = new BasicObject("Hello World!", 101, true);
+var obj1String = JSON.stringify(obj1);
+var obj2 = JSON.parse(obj1String);
+BasicObject.prototype.logInfo.call(obj2);
+
+// after the Object.assing()
+var obj3 - new BasicObject(obj2);
+
+
+var obj1 = new BasicObject("Hello World!", 101, true);
+var obj1String = JSON.stringify(obj1);
+var obj2 = JSON.parse(obj1String);
+var obj3 = new BasicObject(obj2);
+obj3.logInfo()
+
+-->
+
+
+<!--
+
+XMLHttpRequest.responseText
+
+-->
