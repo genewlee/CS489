@@ -1,0 +1,128 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+
+		function reqListenerLists () {
+			var actualJson = JSON.parse(this.responseText);
+			var filesList = actualJson.file_list;
+
+			for (var item of filesList) {
+				var table = document.createElement("table");
+				if (item.type == "file") {
+					var tr = table.insertRow();
+					var td = tr.insertCell();
+					td.innerHTML = getFile(item.name);
+					td = tr.insertCell();
+					td.innerHTML = item.mtime;
+					td = tr.insertCell();
+					td.innerHTML = item.size;
+					td = tr.insertCell();
+					td.innerHTML = item.type;
+				} 
+				else {
+					var tr = table.insertRow();
+					tr.setAttribute("class", "dir");
+					tr.setAttribute("dirName", item.name);
+					tr.style.backgroundColor = "silver";
+					var td = tr.insertCell();
+					td.innerHTML = getFile(item.name);
+					td = tr.insertCell();
+					td.innerHTML = item.mtime;
+					td = tr.insertCell();
+					td.innerHTML = item.size;
+					td = tr.insertCell();
+					td.innerHTML = item.type;
+					tr = table.insertRow();
+					tr.innerHTML = "<div id='" + item.name + "'></div></td></tr>";
+					tr.setAttribute("style", "colspan:4;");
+				}
+				document.getElementById('listsDiv').appendChild(table);
+			}
+		}
+
+		function reqListenerSubLists () {
+			var actualJson = JSON.parse(this.responseText);
+			var filesList = actualJson.file_list;
+			var dirName = this.responseURL.split(/[/,\\ ]+/).pop();
+			
+			for (var item of filesList) {
+				var row = "";
+				if (item.type == "file") {
+					row += "<tr>";
+					row += "<td>&nbsp;</td>";
+					row += "<td class='subFile'>" + getFile(item.name, dirName) + "<div style='height:100%;width:100%'>" + item.name +  "</a></td>";
+					row += "<td>" + item.mtime + "</td>";
+					row += "<td>" + item.size + "</td>";
+					row += "<td>" + item.type + "</td>";
+					row += "</tr>";
+				} 
+				else {
+					row += "<tr class='dir'>";
+					row += "<td><strong>&gt;</strong></td>";
+					row += "<td class='subFile'>" + item.name + "</td>";
+					row += "<td>" + item.mtime + "</td>";
+					row += "<td>" + item.size + "</td>";
+					row += "<td>" + item.type + "</td>";
+					row += "</tr>";
+					//row += "<tr class='hiddenSubDir'> <td> <div id='subDir'></div></td></tr>";
+				}
+				$(row).insertAfter(rowPos);
+				// var tr = document.createElement("tr");
+				// tr.innerHTML = row;
+				// rowPos.children.push(tr);
+			}
+		}
+			
+		function getSubLists(dirName) {
+			if (dirName == undefined || dirName === null) {
+				dirName = "";
+			}
+			var oReq = new XMLHttpRequest();
+			oReq.addEventListener("load", reqListenerLists);
+			oReq.open("GET", "http://127.0.0.1:8080/lists/" + dirName);
+			oReq.send();
+		}
+
+		function getFile (name, dirName) {
+			if (dirName == undefined || dirName === null) {
+				return "<a href='http://127.0.0.1:8080/files/" + name + "' target='_blank'><div style='height:100%;width:100%'>" + name +  "</a>";
+			}
+			return "<a href='http://127.0.0.1:8080/files/" + dirName + "/" + name + "' target='_blank'><div style='height:100%;width:100%'>" + name +  "</a>";
+		}
+
+		function getLists () {
+			var oReq = new XMLHttpRequest();
+			oReq.addEventListener("load", reqListenerLists);
+			oReq.open("GET", "http://127.0.0.1:8080/lists");
+			oReq.send();
+		}
+
+		$(document).on('click', '.dir', function() { 
+			var dirName = $(this).attr('dirName');
+			//getSubLists(dirName);
+			getSubLists()
+			$('.hiddenSubDir').toggle(); 
+		});
+
+		// $("table tbody tr").live('click', '.dir', function() { 
+		// 	var dirName = $(this).attr('dirName');
+		// 	rowPos = $(this);
+		// 	rowPos[0].childNodes[0].innerHTML = "$nbsp; blah";
+		// 	var oReq = new XMLHttpRequest();
+		// 	oReq.addEventListener("load",  reqListenerSubLists);
+		// 	oReq.open("GET", "http://127.0.0.1:8080/lists/" + dirName);
+		// 	oReq.send();
+		// });
+
+	</script>
+
+	<body onload="getLists()">
+		<br><br>
+		<div id='listsDiv'>
+			<table id='headers'> <tr><th>Name</th> <th>Date Modified</th> <th>Size (B)</th> <th>Type</th> </tr> <tr><td colspan='4'>&nbsp;</td></tr></table>
+		</div>
+	</body>
+</html>

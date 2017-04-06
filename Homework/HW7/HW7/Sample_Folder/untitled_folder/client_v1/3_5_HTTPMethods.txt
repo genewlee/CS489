@@ -1,0 +1,5 @@
+HTTP Methods
+
+GET - get a "file"
+PUT - upload a file
+POST - send data to server (used more for uploading than PUT)

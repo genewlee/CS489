@@ -1,0 +1,103 @@
+<!-- put your name and ID number here -->
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<script language="JavaScript">
+
+	// For simplicity, use this hard-coded URL as the base URL for your 
+	// requests. Use XMLHttpRequest and have the URL be g_serviceURL 
+	// plus a concatenated portion as appropriate.
+	var g_serviceURL = "http://localhost:8080/";
+
+	function PageLoaded()
+	{
+		// Your code here - dynamically generate page content
+
+		document.body.innerHTML = "<br><br><div id='listsDiv'><table id='headers'> <tr><th>Name</th> <th>Date Modified</th> <th>Size (B)</th> <th>Type</th> </tr> <tr> <td colspan='4'>&nbsp;</td></tr> </table></div>";
+
+		// XMLHttpRequest
+		getLists();
+	}
+
+	function reqListenerLists () {
+			var actualJson = JSON.parse(this.responseText);
+			var filesList = actualJson.file_list;
+			var dirName = this.responseURL.split(/[/,\\ ]+/).pop();
+			
+			var divId = "listsDiv";
+			if (dirName !== "") { // must be for a sub dir
+				divId = dirName;
+				var node = document.getElementById(divId);
+				if (node.hasChildNodes()) { // if it is already showing its contents toggle to remove
+					while (node.hasChildNodes()) {
+					    node.removeChild(node.lastChild);
+					}
+					return;
+				}
+			}
+
+			for (var item of filesList) {
+				var table = document.createElement("table");
+				if (item.type == "file") {
+					var tr = table.insertRow();
+					var td = tr.insertCell();
+					td.setAttribute("tabindex", "1;");
+					td.innerHTML = getFile(item.name, dirName);
+					td = tr.insertCell();
+					td.innerHTML = item.mtime;
+					td = tr.insertCell();
+					td.innerHTML = item.size;
+					td = tr.insertCell();
+					td.innerHTML = item.type;
+				} 
+				else {
+					var tr = table.insertRow();
+					tr.setAttribute("class", "dir");
+					var path = divId + "/" + item.name;
+					tr.setAttribute("onClick", "getLists('" + path + "')");
+					tr.style.backgroundColor = "silver";
+					var td = tr.insertCell();
+					td.innerHTML = item.name;
+					td = tr.insertCell();
+					td.innerHTML = item.mtime;
+					td = tr.insertCell();
+					td.innerHTML = item.size;
+					td = tr.insertCell();
+					td.innerHTML = item.type;
+				}
+
+				// add extra in case for subdir and same spacing for files
+				tr = table.insertRow();
+				td = tr.insertCell();
+				td.setAttribute("style", "padding-left:20px;");
+				td.setAttribute("colspan", "4;");
+				td.innerHTML = "<div id='" + item.name + "'></div>";
+
+				document.getElementById(divId).appendChild(table);
+			}
+		}
+			
+		function getLists(dirName) {
+			if (dirName == undefined || dirName === null) {
+				dirName = "";
+			}
+			var oReq = new XMLHttpRequest();
+			oReq.addEventListener("load", reqListenerLists);
+			oReq.open("GET", g_serviceURL + "lists/" + dirName);
+			oReq.send();
+		}
+
+		function getFile (name, dirName) {
+			if (dirName == "" || dirName == undefined || dirName === null) { // the root dir
+				return "<a href='" + g_serviceURL + "files/" + name + "' target='_blank'><div style='height:100%;width:100%'>" + name +  "</a>";
+			}
+			// all sub dirs
+			return "<a href='" + g_serviceURL + "files/" + dirName + "/" + name + "' target='_blank'><div style='height:100%;width:100%'>" + name +  "</a>";
+		}
+	</script>
+
+	<body onload="PageLoaded()">
+		(loading...)	
+	</body>
+</html>

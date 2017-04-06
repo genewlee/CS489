@@ -1,0 +1,31 @@
+body {
+    font: normal 12px Verdana;
+}
+
+table {
+	width: 100%;
+	font: normal 13px Arial;
+    table-layout: fixed
+}
+
+/* headers */
+th {
+	text-align: left;
+    background: gray;
+    color: white;
+}
+
+/* spacing between cells */
+td {
+    padding: 1px;
+}
+
+/* set dir pointer to show a pointer not a text cursor*/
+tr.dir { 
+    cursor: pointer;
+}
+
+/* don't underline links */
+a {
+    text-decoration: none;
+}

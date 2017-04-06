@@ -1,0 +1,43 @@
+body {
+    font: normal 12px sans-serif;
+}
+
+table {
+	width: 1000px;
+	font: normal 12px sans-serif;
+    table-layout: fixed
+}
+
+/* headers */
+th {
+    font: normal 12px sans-serif;
+	text-align: left;
+    background: gray;
+    color: white;
+}
+
+tr.file {
+    background-color: whitesmoke;
+}
+
+/*tr.file:hover {
+    background-color: aquamarine;
+    color: white;
+}*/
+
+/* set dir pointer to show a pointer not a text cursor*/
+tr.dir { 
+    cursor: pointer;
+    background-color: silver;
+}
+
+/*tr.dir:hover {
+    background-color: lightblue;
+}*/
+
+/* don't underline links */
+a {
+    text-decoration: none;
+    color: black;
+}
+

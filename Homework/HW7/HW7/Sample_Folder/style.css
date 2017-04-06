@@ -1,0 +1,32 @@
+body {
+    font: normal 12px Verdana;
+}
+
+table {
+	width: 75%;
+	font: normal 13px Arial;
+}
+
+th {
+	text-align: left;
+	text-decoration: underline;
+}
+
+tr.hiddenSubDir {
+    display: none;
+}
+tr.hiddenSubDir div {
+    margin: 1px;
+    background: white;
+}
+tr.dir {
+    cursor: pointer;
+}
+
+td {
+    padding: 3px;
+}
+
+td.subFile {
+	text-indent: 15px;
+}

@@ -1,0 +1,124 @@
+<!-- 
+Gene Lee
+11216720
+ -->
+
+<html>
+
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+
+	<script language="JavaScript">
+
+		// For simplicity, use this hard-coded URL as the base URL for your 
+		// requests. Use XMLHttpRequest and have the URL be g_serviceURL 
+		// plus a concatenated portion as appropriate.
+		var g_serviceURL = "http://localhost:8080/";
+
+		function PageLoaded()
+		{
+			document.body.innerHTML = "<br><br><table id='headers'> <tr><th>Name</th> <th>Size (B)</th> <th>Date Modified</th> <th>Type</th> </tr> <tr> <td colspan='4'>&nbsp;</td></tr> </table>";
+			
+			// XMLHttpRequest
+			getLists();
+		}
+
+		// work with the response to generate the dir dynamically
+		function onLoadEndListener () 
+		{
+			var actualJson = JSON.parse(this.responseText);
+			var filesList = actualJson.file_list;
+			
+			var node = document.body;
+
+			// We use the path from the URI to find the div associated with a dir
+			var divIdStartIndex = this.responseURL.indexOf("lists/");
+			var path = this.responseURL.substr(divIdStartIndex + 6);
+			path = decodeURI(path); // the DIV ID is the path
+
+			if (path !== "") // must be for a sub dir
+			{ 
+				node = document.getElementById(path);
+				var parentDir = node.parentElement.parentElement.previousSibling;
+				if (node.hasChildNodes()) { // if it is already showing its contents 'toggle' to remove
+					while (node.hasChildNodes()) {
+					    node.removeChild(node.lastChild);
+					}
+					parentDir.style.backgroundColor = "silver"; // deselected the dir
+					parentDir.style.color = "black";
+					return;
+				}
+				parentDir.style.backgroundColor = "lightblue"; // selected the dir
+				parentDir.style.color = "white";
+			}
+
+			for (var item of filesList) 
+			{
+				var divID = path + "/" + item.name; // to make DIV unique to show subdirs, use the path as the id
+				
+				var table = document.createElement("table");
+				if (item.type == "file") {
+					var tr = table.insertRow();
+					tr.setAttribute("class", "file");
+					var td = tr.insertCell();
+					td.innerHTML = getFile(item.name, path); // make it into a link
+				} 
+				else { // a directory
+					var tr = table.insertRow();
+					tr.setAttribute("class", "dir");
+					tr.setAttribute("onClick", "getLists('" + divID + "')");
+					var td = tr.insertCell();
+					td.innerHTML = item.name;
+				}
+
+				// other stats
+				td = tr.insertCell();
+				td.innerHTML = item.size;
+				td = tr.insertCell();
+				td.innerHTML = item.mtime;
+				td = tr.insertCell();
+				td.innerHTML = item.type;
+
+				// add extra in case for subdir 
+				tr = table.insertRow();
+				td = tr.insertCell();
+				td.style.paddingLeft = "10px";
+				td.setAttribute("colspan", "4");
+				td.innerHTML = "<div id='" + divID + "'></div>"; // set the div id as the path to this sub dir
+
+				node.appendChild(table);
+			}
+		}
+
+		// XMLHttpRequest to the server
+		function getLists(dirName) 
+		{
+			if (dirName == undefined || dirName === null) {
+				dirName = "";
+			}
+			dirName = encodeURI(dirName);  // for folders that have a space, etc.
+			var oReq = new XMLHttpRequest();
+			oReq.addEventListener("load", onLoadEndListener);
+			oReq.open("GET", g_serviceURL + "lists/" + dirName);
+			oReq.send();
+		}
+
+		// converts name of file into a hyperlink
+		function getFile (name, dirName) 
+		{
+			if (dirName == "" || dirName == undefined || dirName === null) { // the root dir
+				return "<a href='" + g_serviceURL + "files/" + name + "' target='_blank'><div style='height:100%;width:100%'>" + name +  "</a>";
+			}
+			// all sub dirs
+			dirName = encodeURI(dirName);  // for files that have a space, etc.
+			return "<a href='" + g_serviceURL + "files/" + dirName + "/" + name + "' target='_blank'><div style='height:100%;width:100%'>" + name +  "</a>";
+		}
+
+	</script>
+
+	<body onload="PageLoaded()">
+		(loading...)	
+	</body>
+
+</html>
