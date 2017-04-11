@@ -89,11 +89,11 @@ var handler = function (request, response)
 		var allAtOnce = false;
 		if (allAtOnce) {
 			// read entire file
-			var buf = fs.readFileSynce(actualPath);
+			var buf = fs.readFileSync(actualPath);
 
 			// write back file data
 			response.writeHead(200, { "Content-Type": contentType, "Access-Control-Allow-Origin": "*" });
-			repsonse.end(buf);
+			response.end(buf);
 		}
 		else {
 			// Open read stream
