@@ -1,0 +1,56 @@
+W3C Status Descriptors
+
+	- Working Draft (WD)
+	- Candidate Recommendation (CR)
+	- Proposed Recommendation (PR)
+	- W3C Recommendation (REC)
+
+In short, if it's not "(ST) Standard", then, it's not an "official" standard
+
+
+A simple example: battery API
+
+	- Purpose of API: to get battery status
+	- MDN status*: (CR)
+	- Suppored on*:
+		- Chrome (on Desktop or Android)
+		- Firefox
+	- Not supported on*:
+		- Safari
+		- Chrome on iOS
+
+	* status as of April 2017
+
+	- BatteryManager object
+	- Page on MDN lists members:
+		- charging (bool)
+			- indicated whether or not the battery is currently charging
+		- chargingTime (num)
+		- dischargingTime (num)
+		- level (num)
+
+	- How to get the BatteryManager object:
+		- window.navigator.getBattery() function
+			- or just navigator.getBattery()
+
+	- Promise object
+		- used for async computations. A Promise represents a value which may be available now, or in the future, or never.
+		- Many APIs access "system" functionality (core devices/serviecs)
+		- user may not want to give browser access to these devices/sevices
+		- When promises are used in code, the user may be prompted by the browser to allow access
+			- Whenever the user decides, then the primise is resolved (fulfilled or rejected)
+			- hance a lot of these newer APIs giving back Promise objects
+
+		- promiseObject.then function takes 2 functions as parameters
+			- first is the function to call if promise is fulfilled
+			- second is the function to call if promise is rejected
+
+
+
+function GetPos(timestamp) {
+	// this.data
+	// Find 2 points with times
+	// before and after
+	var before, after
+	var weight = (aftertime - beforetime) / (tiimestamp - beforetime)
+}	

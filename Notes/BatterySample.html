@@ -1,0 +1,44 @@
+<html>
+	<script>
+		function init()
+		{
+			if (!navigator.getBattery)
+			{
+				document.body.innerHTML = "Error: no member \"getBattery\" in navigator";
+				return;
+			}
+
+			// Get the Promise object for the battery manager
+			var p = navigator.getBattery();
+
+			if (!p)
+			{
+				document.body.innerHTML = "Error: navigator.getBattery returned invalid object";
+				return;
+			}
+
+			// Setup callbacks for fulfillment or rejection
+			p.then(GotBatteryManager, GBMFailed);
+		}
+
+		function GotBatteryManager(manager)
+		{
+			console.dir(manager);
+
+			document.body.innerHTML = 
+				"Battery level: " + (manager.level * 100.0) + "%" +
+				"<br>Is charging?: " + manager.charging +
+				"<br>" +
+				"Time in seconds to discharge: " + manager.dischargingTime +
+				"<br>" +
+				"Time in seconds to full charge: " + manager.chargingTime;
+		}
+
+		function GBMFailed(manager)
+		{
+			document.body.innerHTML = "Failed to get battery manager";
+		}
+	</script>
+
+	<body onload="init()"></body>
+</html>

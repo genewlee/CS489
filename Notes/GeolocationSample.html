@@ -1,0 +1,33 @@
+<html>
+<script>
+function init()
+{
+	if (!navigator.geolocation)
+	{
+		document.body.innerHTML = "Browser doesn't support geolocation!";
+		return;
+	}
+
+	var opts = { "timeout": 10000 };
+
+	// Use this function if you only want the position once:
+	//navigator.geolocation.getCurrentPosition(ShowPosition);
+
+	document.body.innerHTML = "Monitoring position changes...";
+	navigator.geolocation.watchPosition(ShowPosition, ShowPositionError, opts);
+}
+
+function ShowPosition(pos)
+{
+	document.body.innerHTML = 
+		"Position (" + (new Date(pos.timestamp)) +"): " + pos.coords.latitude + "," + pos.coords.longitude;
+}
+
+function ShowPositionError(err)
+{
+	document.body.innerHTML = "Error: " + err.message;
+}
+</script>
+
+<body onload="init()">(loading...)</body>
+</html>
