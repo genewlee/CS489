@@ -12,7 +12,9 @@ var fs = require("fs");
 var pathNodeJS = require("path");
 
 var port = 8080;
-var path = "/";//"/Users/gene/Desktop/HW7";
+var path = "/";
+if (process.argv[2] !== undefined)
+	path = process.argv[2];
 
 var handler = function (request, response) 
 {
