@@ -2,7 +2,9 @@
 // 11216720
 // Homework 7
 
-// Server
+// Run as:
+// > node server.js <pathname>
+//
 // Option 1:
 // 		URL starts with a string that distinguishes the request as either wanting file listings/information vs. file content. 
 //		For example, all list-oriented URLs start with “/lists” and all file-download URLs start with “/files”
@@ -85,6 +87,7 @@ var handler = function (request, response)
 		else if (ext == ".pdf") { contentType = "application/pdf"; }
 		else if (ext == ".gif") { contentType = "image/gif"; }
 		else if (ext == ".jpg" || ext == ".jpeg") { contentType = "image/jpeg"; }
+		else if (ext == ".png") { contentType = "image/png"; }
 		else if (ext == ".json") { contentType = "application/json"; }
 		else { contentType = "application/octet-stream"; }
 
