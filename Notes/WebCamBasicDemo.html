@@ -1,0 +1,30 @@
+<!-- Cpt S 489 Demo -->
+<!-- Very basic demo that gets webcam and displays live image on page -->
+<html>
+	<script>
+		function Init()
+		{
+		    var vid = document.getElementById("pageVideo");
+
+			// Get video device (async)
+			var p = navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+
+			// Setup callbacks
+			p.then(function(stream) {
+		        vid.srcObject = stream;
+		        vid.play();
+		    }).catch(GetMediaError);
+		}
+
+		function GetMediaError(err)
+		{
+			document.getElementById("statusDIV").textContent = 
+				"Error when trying to get webcam: " + err.name;
+		}
+	</script>
+
+	<body onload="Init()">
+		<div id="statusDIV"></div>
+		<video id="pageVideo"></video>
+	</body>
+</html>

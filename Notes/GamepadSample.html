@@ -1,0 +1,117 @@
+<!-- Cpt S 489 Sample -->
+<html>
+<script>
+var g_gamepad = null;
+function Init()
+{
+	if (!navigator.getGamepads)
+	{
+		document.body.innerHTML = "Error: no member \"getGamepads\" in navigator";
+		return;
+	}
+
+	// First setup the event to monitor gamepad connections
+	window.addEventListener("gamepadconnected", GamepadConnectionMade);
+
+	// Get the array of gamepads
+	var gamepads = navigator.getGamepads();
+
+	if (gamepads == null)
+	{
+		document.body.innerHTML = "navigator.getGamepads() returned null. " + 
+			"Connect a gamepad and press a button to proceed.";
+		return;
+	}
+
+	// Documentation states that we may get back an array with null entries
+	if (gamepads[0] == null)
+	{
+		document.body.innerHTML = "navigator.getGamepads()[0] is null. " + 
+			"Connect a gamepad and press a button to proceed.";
+		return;
+	}
+
+	GotGamepad(gamepads[0]);
+}
+
+function GamepadConnectionMade(event)
+{
+	GotGamepad(event.gamepad);
+}
+
+function GotGamepad(gamepad)
+{
+	g_gamepad = gamepad;
+	document.body.innerHTML = "Gamepad \"" + gamepad.id + "\" Connected";
+
+	// Create info elements for each gamepad button
+	var infoDIV = document.createElement("div");
+	document.body.appendChild(infoDIV);
+	var pageElements = new Array();
+	for (var i = 0; i < gamepad.buttons.length; i++)
+	{
+		var buttonDIV = document.createElement("div");
+		buttonDIV.innerHTML = "Button " + (i+1).toString();
+		buttonDIV.setAttribute("style", "border: 1px solid black");
+		infoDIV.appendChild(buttonDIV);
+		var buttonStateDIV = document.createElement("div");
+		buttonDIV.appendChild(buttonStateDIV);
+		pageElements.push(buttonStateDIV);
+	}
+
+	// Create info elements for axes as well
+	var axesStatusElements = new Array();
+	for (var i = 0; i < gamepad.axes.length; i++)
+	{
+		var axisDIV = document.createElement("div");
+		axisDIV.innerHTML = "Axis " + (i+1).toString();
+		axisDIV.setAttribute("style", "border: 1px solid black");
+		infoDIV.appendChild(axisDIV);
+		var stateDIV = document.createElement("div");
+		axisDIV.appendChild(stateDIV);
+		axesStatusElements.push(stateDIV);
+	}
+
+	// Refresh the status
+	RefreshButtons(pageElements, axesStatusElements);
+}
+
+function RefreshButtons(btnStatusEls, axisStausEls)
+{
+	// From the MDN page at 
+	// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API:
+	// "Chrome does things differently here. Instead of constantly 
+	// storing the gamepad's latest state in a variable it only stores 
+	// a snapshot, so to do the same thing in Chrome you have to keep 
+	// polling it and then only use the Gamepad object in code when it 
+	// is available."
+	//
+	// This is why instead of just looking at info in the global object, we must 
+	// re-obtain the gamepad first.
+	g_gamepad = navigator.getGamepads()[0];
+	if (g_gamepad == null) { return; }
+
+	var len = g_gamepad.buttons.length;
+	if (btnStatusEls.length < len)
+	{
+		len = arrayOfPageInfoEls.length;
+	}
+	for (var i = 0; i < len; i++)
+	{
+		btnStatusEls[i].textContent = g_gamepad.buttons[i].value;
+	}
+
+	// Udpate axes data as well
+	for (var i = 0; i < axisStausEls.length; i++)
+	{
+		var value = g_gamepad.axes[i];
+		value = Math.floor(value * 100) / 100;
+		axisStausEls[i].textContent = value;
+	}
+
+	setTimeout(function() { RefreshButtons(btnStatusEls, axisStausEls);  }, 20);
+}
+</script>
+
+<body onload="Init()"></body>
+</html>

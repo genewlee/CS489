@@ -1,0 +1,30 @@
+<html>
+<script>
+
+function initialize()
+{
+    var lastText = localStorage.getItem("testSave");
+    if (lastText !== null)
+    {
+        document.getElementById("tb").value = lastText;
+    }
+}
+
+function storeLocal()
+{
+    // Get the value in the text box and save it to local storage
+    var lastText = document.getElementById("tb").value;
+    localStorage.setItem("testSave", lastText);
+}
+
+</script>
+<body onload="initialize()">
+	Saved in local storage when changed:<br>
+	<input style="width: 100%;" type="text" id="tb" oninput="storeLocal()" value="Type here, close page, and then re-open" />
+	<br><br>
+	Not saved when changed:<br>
+	<input style="width: 100%;" type="text" id="tb2" value="Type here, close page, and then re-open" />
+	<br><br>
+	<input type="button" value="Clear all local-storage for this page" onclick="localStorage.clear()" />
+</body>
+</html>
