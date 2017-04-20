@@ -1,0 +1,92 @@
+<html>
+	<script>
+
+		// var serviceURL = "http://192.168.88.249:8080/"
+		// var serviceURL = "http://127.0.0.1:8080/";
+		var serviceURL = "http://172.20.10.2:8080/";
+		var vid = null;
+		var canvas = null;
+
+		function Init()
+		{
+		    vid = document.getElementById("pageVideo");
+		    canvas = document.getElementById('canvas');
+
+			// Get video device (async)
+			var p = navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+
+			// Setup callbacks
+			p.then(function(stream) {
+		        vid.srcObject = stream;
+		        vid.play();
+		    }).catch(GetMediaError);
+
+			// when vid is playing call to take a picture of frame
+		    vid.addEventListener('canplay', function(ev){
+				takepicture();
+			}, false);
+		}
+
+		function GetMediaError(err)
+		{
+			document.getElementById("statusDIV").textContent = 
+				"Error when trying to get webcam: " + err.name;
+		}
+
+		function takepicture() 
+		{
+		    var context = canvas.getContext('2d');
+		    if (vid.videoWidth && vid.videoHeight) {
+				canvas.width = vid.videoWidth;
+				canvas.height = vid.videoHeight;
+				canvas.style.display="none"; // hide the canvas
+				context.drawImage(vid, 0, 0, vid.videoWidth, vid.videoHeight);
+
+				var data = canvas.toDataURL('image/jpeg');
+				postpicture(data);
+			}
+		}
+
+		function postpicture(data)
+		{
+			var xhr = new XMLHttpRequest();
+			var d = new Date();
+			var ms = d.getTime();
+			xhr.open("POST", serviceURL + ms);
+
+			xhr.onreadystatechange = function() { // Call a function when the state changes.
+			    if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+			        takepicture();
+			        // console.log(data);
+			    }
+			}
+			xhr.send(data);
+		}
+
+		function pauseVid()
+		{
+			vid.pause();
+		}
+
+		function playVid()
+		{
+			vid.play();
+		}
+
+	</script>
+
+	<head>
+		<meta charset='utf-8'>
+		<title>Webcam Streamer</title>
+	</head>
+
+	<body onload="Init()">
+		<div id="statusDIV"></div>
+		<video id="pageVideo"></video>
+		<div>
+			<input type='button' onclick='playVid()' value='Play'/>
+			<input type='button' onclick='pauseVid()' value='Pause'/>
+		</div>
+		<canvas id="canvas"></canvas>
+	</body>
+</html>

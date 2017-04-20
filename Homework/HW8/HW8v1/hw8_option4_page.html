@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!--
+Cpt S 489 HW8
+Only use this file if you are selecting option 4 for this assignment
+Make all changes in the .js file and do not modify this file
+-->
+<html>
+
+<script src="hw8_option4_code.js"></script>
+<script>
+
+var g_arrLength = 5000000;
+
+function AllTests()
+{
+	var resultsDIV = document.getElementById("resultsDIV");
+	if (!window.performance)
+	{
+		resultsDIV.textContent = "No timer available on browser!";
+		return;
+	}
+	resultsDIV.innerHTML = "Generating arrays...";
+
+	// Generate a random array and make 3 deep copies
+	var original, arrayDeepCopy;
+	original = GenArr(g_arrLength);
+	var verification = DupArr(original);
+	verification.sort();
+
+	var resultText = "";
+	var start = -1, end = -1;
+	resultsDIV.innerHTML = "Sorting...";
+
+	// Do the 3 single-threaded, synchronous sorts first
+	resultText += TimeSort(original, function(arr) { arr.sort(); }, "Brower's built-in sort");
+	resultText += TimeSort(original, MergeSort, "Merge sort");
+	resultText += TimeSort(original, QuickSort, "Quick sort");
+	resultsDIV.innerHTML = resultText + "<br>Starting async/multi-threaded sorts...";
+
+	// Create functions for completion callbacks
+	var quickSortDone = function()
+	{
+		// Finish timing quick sort
+		end = performance.now();
+		resultText += ("Async quick sort time: " + Math.round(end - start) + " milliseconds<br>" + 
+			"&nbsp;&nbsp;&nbsp;&nbsp;Sort succeeded? " + (IsSorted(arrayDeepCopy, verification) ? 
+			"<span style='color:green'>YES</span>" :
+			"<span style='color:red'>NO</span>") + "<br>");
+		
+		// Restart the timer and run shell sort tests
+		// Display the final results on the page
+		resultsDIV.innerHTML = resultText;
+	};
+	var mergeSortDone = function()
+	{
+		end = performance.now();
+		resultText += ("Async merge sort time: " + Math.round(end - start) + " milliseconds<br>" + 
+			"&nbsp;&nbsp;&nbsp;&nbsp;Sort succeeded? " + (IsSorted(arrayDeepCopy, verification) ? 
+			"<span style='color:green'>YES</span>" :
+			"<span style='color:red'>NO</span>") + "<br>");
+		
+		// Restart the timer and run quicksort tests
+		arrayDeepCopy = DupArr(original);
+		start = performance.now();
+		QuickSortAsync(arrayDeepCopy, quickSortDone);
+	};
+
+	// Merge sort tests first
+	arrayDeepCopy = DupArr(original);
+	start = performance.now();
+	MergeSortAsync(arrayDeepCopy, mergeSortDone);
+}
+
+// Returns a duplicate copy (deep copy) of the specified array
+function DupArr(arr)
+{
+	var arrCopy = new Int32Array(arr.length);
+	for (var i = 0; i < arr.length; i++)
+	{
+		arrCopy[i] = arr[i];
+	}
+	return arrCopy;
+}
+		
+function GenArr(length)
+{
+	var arr = new Int32Array(length);
+	for (var i = 0; i < length; i++)
+	{
+		arr[i] = Math.random() * 1000000;
+	}
+	return arr;
+}
+
+function IsSorted(arr, verification)
+{
+	for (var i = 1; i < arr.length; i++)
+	{
+		if (arr[i] < arr[i-1]) { return false; }
+	}
+
+	if (verification !== undefined)
+	{
+		if (arr.length !== verification.length) { return false; }
+
+		for (var i = 0; i < arr.length; i++)
+		{
+			if (arr[i] != verification[i]) { return false; }
+		}
+	}
+		
+	return true;
+}
+
+function TimeSort(originalArray, sortFunc, sortFuncName)
+{
+	// Make a deep copy of the original array
+	var arrayDeepCopy = DupArr(originalArray);
+
+	// Time the sort
+	var start = performance.now();
+	sortFunc(arrayDeepCopy);
+	var end = performance.now();
+
+	// Return a string indicating result
+	return sortFuncName + " time: " + Math.round(end - start) + " milliseconds<br>" + 
+		"&nbsp;&nbsp;&nbsp;&nbsp;Sort succeeded? " + (IsSorted(arrayDeepCopy) ? 
+		"<span style='color:green'>YES</span>" :
+		"<span style='color:red'>NO</span>") + "<br>";
+}
+</script>
+
+<body onload="AllTests()">
+    <h2>Test results:</h2><br>
+    <div id="resultsDIV"></div>
+</body>
+
+</html>

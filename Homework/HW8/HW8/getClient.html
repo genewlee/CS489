@@ -1,0 +1,51 @@
+<html>
+	<script>
+
+		// var serviceURL = "http://192.168.88.249:8080/";
+		// var serviceURL = "http://127.0.0.1:8080/";
+		var serviceURL = "http://172.20.10.2:8080/";
+		var stream = null;
+
+		function Init()
+		{
+		    stream = document.getElementById("stream");
+		    showstream();
+		}
+
+		function showstream() 
+		{
+			var xhr = new XMLHttpRequest();
+			var d = new Date();
+			var ms = d.getTime();
+			xhr.open("GET", serviceURL + ms);
+			
+			/*
+			xhr.addEventListener("loadend", function() {
+		        stream.src = xhr.response;
+		    });
+		    */
+		    
+			xhr.onreadystatechange = function() { // Call a function when the state changes.
+			    if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+			        stream.src = xhr.response;
+			    }
+			};
+
+			xhr.send();		
+
+			setTimeout(function() { showstream(); }, 30);	
+		}
+
+	</script>
+
+	<head>
+		<meta charset='utf-8'>
+		<title>Webcam Viewer</title>
+	</head>
+
+	<body bgcolor="black" onload="Init()">
+		<div>
+			<img id="stream"> 
+		</div>
+	</body>
+</html>
