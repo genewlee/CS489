@@ -13,6 +13,7 @@
 		    canvas = document.getElementById('canvas');
 
 			// Get video device (async)
+			// If the user provides permission, then the returned Promise is resolved with the resulting MediaStream object
 			var p = navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 
 			// Setup callbacks
@@ -42,6 +43,8 @@
 				canvas.style.display="none"; // hide the canvas
 				context.drawImage(vid, 0, 0, vid.videoWidth, vid.videoHeight);
 
+				// get data URI containing a representation of the image in 'image/jpeg' format 
+				// encodes data into base64 format
 				var data = canvas.toDataURL('image/jpeg');
 				postpicture(data);
 			}
